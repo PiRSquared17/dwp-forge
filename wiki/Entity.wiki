@@ -1,0 +1,22 @@
+#summary Entity plugin description.
+
+= Entity plugin =
+
+Entity is a simple syntax plugin allows you to insert [http://www.w3.org/TR/REC-html40/sgml/entities.html HTML character entities] on a DokuWiki page.
+
+
+== Syntax ==
+
+To insert an entity just duplicate ampersand and semicolon characters:
+
+{{{
+a &&le;; b
+
+90&&deg;;
+}}}
+
+This code will render as:
+
+  a ≤ b
+
+  90°
