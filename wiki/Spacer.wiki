@@ -1,0 +1,26 @@
+#summary Spacer plugin description.
+
+== Introduction ==
+
+The plugin allows to insert a horizontal in-line space in a text block. It was created mainly to provide some means to control width of DokuWiki table columns. This is more of a work-around rather than a solution, yet it has a more DokuWiki-sh feel than a [http://www.dokuwiki.org/plugin:exttab1 full-fledged rework of the table syntax].
+
+
+== Syntax ==
+
+The width of the spacer can be specified in any CSS units:
+
+{{{
+ <spacer 2em>
+}}}
+
+The intended use in a table context:
+
+{{{
+ ^ Title <spacer 20em>  ^  <spacer 5em> Centered <spacer 5em>  ^
+ | Some title           |  Some value                          |
+}}}
+
+
+== Installation ==
+
+You can use [http://www.dokuwiki.org/plugin:plugin Plugin Manager] to install the [http://dwp-forge.googlecode.com/files/spacer-2008-08-20.zip current release] or download it manually and unpack to plugins directory.
