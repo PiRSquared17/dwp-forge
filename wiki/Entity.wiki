@@ -2,7 +2,7 @@
 
 == Introduction ==
 
-Entity is a simple syntax plugin allows you to insert [http://www.w3.org/TR/REC-html40/sgml/entities.html HTML character entities] on a DokuWiki page.
+Entity is a simple syntax plugin that allows you to insert [http://www.w3.org/TR/REC-html40/sgml/entities.html HTML character entities] on a DokuWiki page.
 
 
 == Syntax ==
