@@ -31,7 +31,7 @@ class syntax_plugin_margin extends DokuWiki_Syntax_Plugin {
         return array(
             'author' => 'Mykola Ostrovskyy',
             'email'  => 'spambox03@mail.ru',
-            'date'   => '2008-11-17',
+            'date'   => '2009-01-31',
             'name'   => 'Margin Plugin',
             'desc'   => 'Allows to add some margin on left side of a text block.',
             'url'    => 'http://code.google.com/p/dwp-forge/'
