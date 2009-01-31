@@ -1,21 +1,18 @@
 <?php
+
 /**
- * Plugin Spacer: Allows to insert horizontal spacers.
+ * Spacer Plugin
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Mykola Ostrovskyy <spambox03@mail.ru>
  */
 
-// must be run within Dokuwiki
+/* Must be run within Dokuwiki */
 if(!defined('DOKU_INC')) die();
 
-if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
-require_once(DOKU_PLUGIN.'syntax.php');
+if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
+require_once(DOKU_PLUGIN . 'syntax.php');
 
-/**
- * All DokuWiki plugins to extend the parser/rendering mechanism
- * need to inherit from this class
- */
 class syntax_plugin_spacer extends DokuWiki_Syntax_Plugin {
 
     function getInfo() {
@@ -24,7 +21,7 @@ class syntax_plugin_spacer extends DokuWiki_Syntax_Plugin {
             'email'  => 'spambox03@mail.ru',
             'date'   => '2008-08-20',
             'name'   => 'Spacer Plugin',
-            'desc'   => 'Allows to insert horizontal spacers',
+            'desc'   => 'Allows to insert horizontal spacers.',
             'url'    => 'http://code.google.com/p/dwp-forge/'
         );
     }
