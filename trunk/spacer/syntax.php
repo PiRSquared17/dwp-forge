@@ -15,11 +15,17 @@ require_once(DOKU_PLUGIN . 'syntax.php');
 
 class syntax_plugin_spacer extends DokuWiki_Syntax_Plugin {
 
+    var $mode;
+
+    function syntax_plugin_spacer() {
+        $this->mode = substr(get_class($this), 7);
+    }
+
     function getInfo() {
         return array(
             'author' => 'Mykola Ostrovskyy',
             'email'  => 'spambox03@mail.ru',
-            'date'   => '2008-08-20',
+            'date'   => '2009-01-31',
             'name'   => 'Spacer Plugin',
             'desc'   => 'Allows to insert horizontal spacers.',
             'url'    => 'http://code.google.com/p/dwp-forge/'
@@ -35,7 +41,7 @@ class syntax_plugin_spacer extends DokuWiki_Syntax_Plugin {
     }
 
     function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('<spacer\s+.+?>',$mode,'plugin_spacer');
+        $this->Lexer->addSpecialPattern('<spacer\s+.+?>', $mode, $this->mode);
     }
 
     function handle($match, $state, $pos, &$handler) {
@@ -60,4 +66,3 @@ class syntax_plugin_spacer extends DokuWiki_Syntax_Plugin {
         return false;
     }
 }
-?>
