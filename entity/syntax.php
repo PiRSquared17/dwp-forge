@@ -1,21 +1,18 @@
 <?php
+
 /**
- * Plugin Entity: Allows to insert HTML entities.
+ * Plugin Entity
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Mykola Ostrovskyy <spambox03@mail.ru>
  */
 
-// must be run within Dokuwiki
+/* Must be run within Dokuwiki */
 if(!defined('DOKU_INC')) die();
 
-if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
-require_once(DOKU_PLUGIN.'syntax.php');
+if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
+require_once(DOKU_PLUGIN . 'syntax.php');
 
-/**
- * All DokuWiki plugins to extend the parser/rendering mechanism
- * need to inherit from this class
- */
 class syntax_plugin_entity extends DokuWiki_Syntax_Plugin {
 
     function getInfo() {
@@ -24,7 +21,7 @@ class syntax_plugin_entity extends DokuWiki_Syntax_Plugin {
             'email'  => 'spambox03@mail.ru',
             'date'   => '2007-10-26',
             'name'   => 'Entity Plugin',
-            'desc'   => 'Allows to insert HTML entities',
+            'desc'   => 'Allows to insert HTML entities.',
             'url'    => 'http://code.google.com/p/dwp-forge/'
         );
     }
