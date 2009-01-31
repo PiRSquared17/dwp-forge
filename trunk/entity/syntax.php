@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Entity
+ * Entity Plugin
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @author     Mykola Ostrovskyy <spambox03@mail.ru>
@@ -15,11 +15,17 @@ require_once(DOKU_PLUGIN . 'syntax.php');
 
 class syntax_plugin_entity extends DokuWiki_Syntax_Plugin {
 
+    var $mode;
+
+    function syntax_plugin_entity() {
+        $this->mode = substr(get_class($this), 7);
+    }
+
     function getInfo() {
         return array(
             'author' => 'Mykola Ostrovskyy',
             'email'  => 'spambox03@mail.ru',
-            'date'   => '2007-10-26',
+            'date'   => '2009-01-31',
             'name'   => 'Entity Plugin',
             'desc'   => 'Allows to insert HTML entities.',
             'url'    => 'http://code.google.com/p/dwp-forge/'
@@ -35,7 +41,7 @@ class syntax_plugin_entity extends DokuWiki_Syntax_Plugin {
     }
 
     function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('&&(?:#\d+|\w+);;',$mode,'plugin_entity');
+        $this->Lexer->addSpecialPattern('&&(?:#\d+|\w+);;', $mode, $this->mode);
     }
 
     function handle($match, $state, $pos, &$handler) {
