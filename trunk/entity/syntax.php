@@ -33,7 +33,7 @@ class syntax_plugin_entity extends DokuWiki_Syntax_Plugin {
     }
 
     function getType() {
-        return 'formatting';
+        return 'substition';
     }
 
     function getSort() {
