@@ -25,7 +25,7 @@ class syntax_plugin_spacer extends DokuWiki_Syntax_Plugin {
         return array(
             'author' => 'Mykola Ostrovskyy',
             'email'  => 'spambox03@mail.ru',
-            'date'   => '2009-01-31',
+            'date'   => '2009-02-14',
             'name'   => 'Spacer Plugin',
             'desc'   => 'Allows to insert horizontal spacers.',
             'url'    => 'http://code.google.com/p/dwp-forge/'
@@ -33,7 +33,7 @@ class syntax_plugin_spacer extends DokuWiki_Syntax_Plugin {
     }
 
     function getType() {
-        return 'formatting';
+        return 'substition';
     }
 
     function getSort() {
@@ -56,10 +56,6 @@ class syntax_plugin_spacer extends DokuWiki_Syntax_Plugin {
 
     function render($mode, &$renderer, $data) {
         if ($mode == 'xhtml') {
-            if ($data === false) {
-                return false;
-            }
-
             $renderer->doc .= '<span style="padding-left:' . $data[0] . ';"></span>';
             return true;
         }
