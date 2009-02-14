@@ -2,7 +2,7 @@
 
 == Introduction ==
 
-The plugin allows to insert a horizontal in-line space in a text block. ~~It was created mainly to provide some means to control width of DokuWiki table columns. This is more of a work-around rather than a solution, yet it has a more DokuWiki-sh feel than a [http://www.dokuwiki.org/plugin:exttab1 full-fledged rework of the table syntax].~~ _(To control width of a table use [TableWidth Table Width plugin] instead.)_
+The plugin allows to insert a horizontal in-line space in a text block. <strike>It was created mainly to provide some means to control width of DokuWiki table columns. This is more of a work-around rather than a solution, yet it has a more DokuWiki-sh feel than a [http://www.dokuwiki.org/plugin:exttab1 full-fledged rework of the table syntax].</strike> _(To control width of a table use [TableWidth Table Width plugin] instead.)_
 
 
 == Syntax ==
