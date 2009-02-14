@@ -19,7 +19,7 @@ Below the edit fields there are two buttons:
   * _Preview_ -- shows the search results with corresponding replacements but does not do the replacement itself.
   * _Apply_ -- replaces selected (see below) matches. If there are no selected matches it acts identical to the _Preview_ button.
 
-BatchEdit displays every match of the search results in a separate box. On top of the box the plugin shows a check box with the page name and a character offset where the match occurred. The check box is used to select matches for the replacement. The rest of the box is split in two parts: matched text with some context on the left side; and the same fragment with the replacement applied on the right. Both the matched text and the replacement are highlighted.
+BatchEdit displays every match of the search results in a separate box. On top of the box the plugin shows a check box with the page name and a character offset where the match occurred. The check box is used to select matches for the replacement. To the right from the page name there are two icons: the first one links to the page itself and the second one to the editor. The rest of the box is split in two parts: matched text with some context on the left side; and the same fragment with applied replacement on the right. Both the matched text and the replacement are highlighted.
 
 After the replacement, the matches show up with no check box in the caption and replaced text is highlighted with green.
 
