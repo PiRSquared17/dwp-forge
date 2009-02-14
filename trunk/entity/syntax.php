@@ -25,7 +25,7 @@ class syntax_plugin_entity extends DokuWiki_Syntax_Plugin {
         return array(
             'author' => 'Mykola Ostrovskyy',
             'email'  => 'spambox03@mail.ru',
-            'date'   => '2009-01-31',
+            'date'   => '2009-02-14',
             'name'   => 'Entity Plugin',
             'desc'   => 'Allows to insert HTML entities.',
             'url'    => 'http://code.google.com/p/dwp-forge/'
