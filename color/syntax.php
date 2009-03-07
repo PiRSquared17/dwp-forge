@@ -3,10 +3,12 @@
  * Plugin Color: Sets new colors for text and background.
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Christopher Smith <chris@jalakai.co.uk>
+ * @author     Mykola Ostrovskyy <spambox03@mail.ru>
+ *             Based on Color plugin by Christopher Smith <chris@jalakai.co.uk>
+ *             Based on Hilited plugin by Esther Brunner <esther@kaffeehaus.ch>
  */
 
-// must be run within Dokuwiki
+/* Must be run within Dokuwiki */
 if(!defined('DOKU_INC')) die();
 
 if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC . 'lib/plugins/');
@@ -32,12 +34,12 @@ class syntax_plugin_color extends DokuWiki_Syntax_Plugin {
      */
     function getInfo(){
         return array(
-            'author' => 'Christopher Smith',
-            'email'  => 'chris@jalakai.co.uk',
-            'date'   => '2008-02-06',
+            'author' => 'Mykola Ostrovskyy',
+            'email'  => 'spambox03@mail.ru',
+            'date'   => '2009-03-07',
             'name'   => 'Color Plugin',
             'desc'   => 'Changes text colour and background',
-            'url'    => 'http://www.dokuwiki.org/plugin:tutorial',
+            'url'    => 'http://code.google.com/p/dwp-forge/'
         );
     }
 
