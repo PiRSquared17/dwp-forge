@@ -1,0 +1,30 @@
+div.dokuwiki a.refnotes-ref {
+}
+
+div.dokuwiki div.refnotes {
+    clear: both;
+    margin: 0 0 1em 0;
+}
+
+div.dokuwiki div.refnotes hr {
+    margin-bottom: 0.2em;
+}
+
+div.dokuwiki div.refnotes div.notes {
+    padding-left: 1em;
+    margin-bottom: 1em;
+}
+
+div.dokuwiki div.refnotes div.note {
+    font-size: 90%;
+}
+
+div.dokuwiki div.refnotes div.smallnote {
+    font-size: 70%;
+}
+
+div.dokuwiki div.refnotes a.nolink {
+}
+
+div.dokuwiki div.refnotes a.backref {
+}
