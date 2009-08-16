@@ -90,7 +90,7 @@ class action_plugin_columns extends DokuWiki_Action_Plugin {
     function _handleColumns($callIndex, $state) {
         switch ($state) {
             case DOKU_LEXER_ENTER:
-                $this->currentBlock = new columns_block($this->currentBlock);
+                $this->currentBlock = new columns_block(count($this->block), $this->currentBlock);
                 $this->currentBlock->addColumn($callIndex, $this->currentSectionLevel);
                 $this->block[] = $this->currentBlock;
                 break;
@@ -152,7 +152,7 @@ class columns_root_block {
     }
 
     /**
-     * Delete all cpatured tags
+     * Delete all captured tags
      */
     function getCorrections() {
         $correction = array();
@@ -165,6 +165,7 @@ class columns_root_block {
 
 class columns_block {
 
+    var $id;
     var $parent;
     var $column;
     var $attribute;
@@ -175,7 +176,8 @@ class columns_block {
     /**
      * Constructor
      */
-    function columns_block($parent) {
+    function columns_block($id, $parent) {
+        $this->id = $id;
         $this->parent = $parent;
         $this->column = array();
         $this->attribute = array();
@@ -227,6 +229,7 @@ class columns_block {
             $call =& $event->data->calls[$this->column[$c]];
             if ($c == 0) {
                 $this->_loadTableAttributes($call[1][1][1]);
+                $this->attribute[0]->addAttribute('columns', $columns);
                 $this->attribute[0]->addAttribute('class', 'first');
             }
             else {
@@ -235,6 +238,8 @@ class columns_block {
                     $this->attribute[$c]->addAttribute('class', 'last');
                 }
             }
+            $this->attribute[$c]->addAttribute('block-id', $this->id);
+            $this->attribute[$c]->addAttribute('column-id', $c + 1);
             $call[1][1][1] = $this->attribute[$c]->getAttributes();
         }
     }
@@ -279,7 +284,7 @@ class columns_block {
             '/^top|middle|bottom$/' => 'vertical-align',
             '/^[lrcjtmb]{1,2}$/' => 'align',
             '/^continue|\.{3}$/' => 'continue',
-            '/^(\*?)((?:-|(?:\d+\.?|\d*\.\d+)(?:%|em|px)))(\*?)$/' => 'width'
+            '/^(\*?)((?:-|(?:\d+\.?|\d*\.\d+)(?:%|em|px|cm|mm|in|pt)))(\*?)$/' => 'width'
         );
         $result = array();
         $attributeName = '';
