@@ -50,6 +50,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         $data = array(
             'ns' => '',
             'count' => 10,
+            'type' => '',
         );
 
         $match = explode('&',$match);
@@ -71,10 +72,16 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
     /**
      * Handle parameters that are specified uing <name>=<value> syntax
      */
-    function handleNamedParameter($name, $value, &$data){
+    function handleNamedParameter($name, $value, &$data) {
+        static $types = array('edit' => 'E', 'create' => 'C');
         switch($name){
             case 'count': $data[$name] = intval($value); break;
             case 'ns': $data[$name] = cleanID($value); break;
+            case 'type' :
+                if(array_key_exists($value, $types)){
+                    $data[$name] = $types[$value];
+                }
+                break;
         }
     }
 
@@ -88,6 +95,11 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         $recents = getRecents(0,$data['count'],$data['ns']);
         if(!count($recents)) return true;
 
+        if($data['type'] != ''){
+            $recents = $this->filterOnChangeType($recents, $data['type']);
+            if(!count($recents)) return true;
+        }
+
         $R->listu_open();
         foreach($recents as $rec){
             $R->listitem_open(1);
@@ -99,6 +111,19 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         }
         $R->listu_close();
         return true;
+    }
+
+    /**
+     *
+     */
+    function filterOnChangeType($recents, $type) {
+        $result = array();
+        foreach($recents as $rec){
+            if($rec['type'] == $type){
+                $result[] = $rec;
+            }
+        }
+        return $result;
     }
 
 }
