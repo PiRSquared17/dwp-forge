@@ -51,6 +51,8 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
             'ns' => '',
             'count' => 10,
             'type' => '',
+            'render' => 'list',
+            'render-flags' => array(),
         );
 
         $match = explode('&',$match);
@@ -58,7 +60,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
             if(is_numeric($m)){
                 $data['count'] = (int) $m;
             }else{
-                if (preg_match('/(\w+)\s*=(.+)/', $m, $temp) == 1){
+                if(preg_match('/(\w+)\s*=(.+)/', $m, $temp) == 1){
                     $this->handleNamedParameter($temp[1], trim($temp[2]), $data);
                 }else{
                     $data['ns'] = cleanID($m);
@@ -74,12 +76,24 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
      */
     function handleNamedParameter($name, $value, &$data) {
         static $types = array('edit' => 'E', 'create' => 'C');
+        static $renderers = array('list', 'pagelist');
         switch($name){
             case 'count': $data[$name] = intval($value); break;
             case 'ns': $data[$name] = cleanID($value); break;
-            case 'type' :
+            case 'type':
                 if(array_key_exists($value, $types)){
                     $data[$name] = $types[$value];
+                }
+                break;
+            case 'render':
+                if(preg_match('/(\w+)(?:\((.*)\))?/', $value, $match) == 1){
+                    if(in_array($match[1], $renderers)){
+                        $data[$name] = $match[1];
+                        $flags = trim($match[2]);
+                        if($flags != ''){
+                            $data['render-flags'] = preg_split('/\s*,\s*/', $flags);
+                        }
+                    }
                 }
                 break;
         }
@@ -100,16 +114,10 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
             if(!count($recents)) return true;
         }
 
-        $R->listu_open();
-        foreach($recents as $rec){
-            $R->listitem_open(1);
-            $R->listcontent_open();
-            $R->internallink($rec['id']);
-            $R->cdata(' '.$rec['sum']);
-            $R->listcontent_close();
-            $R->listitem_close();
+        switch($data['render']){
+            case 'list': $this->renderSimpleList($recents, $R); break;
+            case 'pagelist': $this->renderPageList($recents, $R, $data['render-flags']); break;
         }
-        $R->listu_close();
         return true;
     }
 
@@ -126,6 +134,39 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         return $result;
     }
 
+    /**
+     *
+     */
+    function renderPageList($recents, &$R, $flags) {
+        $pagelist =& plugin_load('helper', 'pagelist');
+        if($pagelist){
+            $pagelist->setFlags($flags);
+            $pagelist->startList();
+            foreach($recents as $rec){
+                $pagelist->addPage(array('id' => $rec['id']));
+            }
+            $R->doc .= $pagelist->finishList();
+        }else{
+            // Fallback to the simple list renderer
+            $this->renderSimpleList($recents, $R);
+        }
+    }
+
+    /**
+     *
+     */
+    function renderSimpleList($recents, &$R) {
+        $R->listu_open();
+        foreach($recents as $rec){
+            $R->listitem_open(1);
+            $R->listcontent_open();
+            $R->internallink($rec['id']);
+            $R->cdata(' '.$rec['sum']);
+            $R->listcontent_close();
+            $R->listitem_close();
+        }
+        $R->listu_close();
+    }
 }
 
 //Setup VIM: ex: et ts=4 enc=utf-8 :
