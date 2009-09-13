@@ -138,7 +138,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
      *
      */
     function renderPageList($recents, &$R, $flags) {
-        $pagelist =& plugin_load('helper', 'pagelist');
+        $pagelist = @plugin_load('helper', 'pagelist');
         if($pagelist){
             $pagelist->setFlags($flags);
             $pagelist->startList();
