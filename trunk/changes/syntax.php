@@ -57,11 +57,25 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
             if(is_numeric($m)){
                 $data['count'] = (int) $m;
             }else{
-                $data['ns'] = cleanID($m);
+                if (preg_match('/(\w+)\s*=(.+)/', $m, $temp) == 1){
+                    $this->handleNamedParameter($temp[1], trim($temp[2]), $data);
+                }else{
+                    $data['ns'] = cleanID($m);
+                }
             }
         }
 
         return $data;
+    }
+
+    /**
+     * Handle parameters that are specified uing <name>=<value> syntax
+     */
+    function handleNamedParameter($name, $value, &$data){
+        switch($name){
+            case 'count': $data[$name] = intval($value); break;
+            case 'ns': $data[$name] = cleanID($value); break;
+        }
     }
 
     /**
