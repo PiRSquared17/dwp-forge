@@ -50,7 +50,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         $data = array(
             'ns' => '',
             'count' => 10,
-            'type' => '',
+            'type' => array(),
             'render' => 'list',
             'render-flags' => array(),
         );
@@ -75,14 +75,16 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
      * Handle parameters that are specified uing <name>=<value> syntax
      */
     function handleNamedParameter($name, $value, &$data) {
-        static $types = array('edit' => 'E', 'create' => 'C');
+        static $types = array('edit' => 'E', 'create' => 'C', 'delete' => 'D', 'minor' => 'e');
         static $renderers = array('list', 'pagelist');
         switch($name){
             case 'count': $data[$name] = intval($value); break;
             case 'ns': $data[$name] = cleanID($value); break;
             case 'type':
-                if(array_key_exists($value, $types)){
-                    $data[$name] = $types[$value];
+                foreach(preg_split('/\s*,\s*/', $value) as $value){
+                    if(array_key_exists($value, $types)){
+                        $data[$name][] = $types[$value];
+                    }
                 }
                 break;
             case 'render':
@@ -109,7 +111,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         $changes = getRecents(0,$data['count'],$data['ns']);
         if(!count($changes)) return true;
 
-        if($data['type'] != ''){
+        if(!empty($data['type'])){
             $changes = $this->filterOnChangeType($changes, $data['type']);
             if(!count($changes)) return true;
         }
@@ -127,7 +129,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
     function filterOnChangeType($changes, $type) {
         $result = array();
         foreach($changes as $change){
-            if($change['type'] == $type){
+            if(in_array($change['type'], $type)){
                 $result[] = $change;
             }
         }
