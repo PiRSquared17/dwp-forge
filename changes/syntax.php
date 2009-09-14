@@ -106,17 +106,17 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         $R->info['cache'] = false;
         if($mode != 'xhtml') return false;
 
-        $recents = getRecents(0,$data['count'],$data['ns']);
-        if(!count($recents)) return true;
+        $changes = getRecents(0,$data['count'],$data['ns']);
+        if(!count($changes)) return true;
 
         if($data['type'] != ''){
-            $recents = $this->filterOnChangeType($recents, $data['type']);
-            if(!count($recents)) return true;
+            $changes = $this->filterOnChangeType($changes, $data['type']);
+            if(!count($changes)) return true;
         }
 
         switch($data['render']){
-            case 'list': $this->renderSimpleList($recents, $R); break;
-            case 'pagelist': $this->renderPageList($recents, $R, $data['render-flags']); break;
+            case 'list': $this->renderSimpleList($changes, $R); break;
+            case 'pagelist': $this->renderPageList($changes, $R, $data['render-flags']); break;
         }
         return true;
     }
@@ -124,11 +124,11 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
     /**
      *
      */
-    function filterOnChangeType($recents, $type) {
+    function filterOnChangeType($changes, $type) {
         $result = array();
-        foreach($recents as $rec){
-            if($rec['type'] == $type){
-                $result[] = $rec;
+        foreach($changes as $change){
+            if($change['type'] == $type){
+                $result[] = $change;
             }
         }
         return $result;
@@ -137,31 +137,31 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
     /**
      *
      */
-    function renderPageList($recents, &$R, $flags) {
+    function renderPageList($changes, &$R, $flags) {
         $pagelist = @plugin_load('helper', 'pagelist');
         if($pagelist){
             $pagelist->setFlags($flags);
             $pagelist->startList();
-            foreach($recents as $rec){
-                $pagelist->addPage(array('id' => $rec['id']));
+            foreach($changes as $change){
+                $pagelist->addPage(array('id' => $change['id']));
             }
             $R->doc .= $pagelist->finishList();
         }else{
             // Fallback to the simple list renderer
-            $this->renderSimpleList($recents, $R);
+            $this->renderSimpleList($changes, $R);
         }
     }
 
     /**
      *
      */
-    function renderSimpleList($recents, &$R) {
+    function renderSimpleList($changes, &$R) {
         $R->listu_open();
-        foreach($recents as $rec){
+        foreach($changes as $change){
             $R->listitem_open(1);
             $R->listcontent_open();
-            $R->internallink($rec['id']);
-            $R->cdata(' '.$rec['sum']);
+            $R->internallink($change['id']);
+            $R->cdata(' '.$change['sum']);
             $R->listcontent_close();
             $R->listitem_close();
         }
