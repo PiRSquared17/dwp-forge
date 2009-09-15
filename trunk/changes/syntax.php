@@ -113,16 +113,21 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
      */
     function render($mode, &$R, $data) {
         $R->info['cache'] = false;
-        if($mode != 'xhtml') return false;
+        if($mode == 'xhtml'){
+            $changes = $this->getChanges($data['count'], $data['ns'], $data['type']);
+            if(!count($changes)) return true;
 
-        $changes = $this->getChanges($data['count'], $data['ns'], $data['type']);
-        if(!count($changes)) return true;
-
-        switch($data['render']){
-            case 'list': $this->renderSimpleList($changes, $R); break;
-            case 'pagelist': $this->renderPageList($changes, $R, $data['render-flags']); break;
+            switch($data['render']){
+                case 'list': $this->renderSimpleList($changes, $R); break;
+                case 'pagelist': $this->renderPageList($changes, $R, $data['render-flags']); break;
+            }
+            return true;
+        }elseif($mode == 'metadata'){
+            global $conf;
+            $R->meta['relation']['depends']['rendering'][$conf['changelog']] = true;
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**
