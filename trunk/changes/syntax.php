@@ -48,7 +48,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         $match = substr($match,10,-2);
 
         $data = array(
-            'ns' => '',
+            'ns' => array(),
             'count' => 10,
             'type' => array(),
             'render' => 'list',
@@ -63,7 +63,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
                 if(preg_match('/(\w+)\s*=(.+)/', $m, $temp) == 1){
                     $this->handleNamedParameter($temp[1], trim($temp[2]), $data);
                 }else{
-                    $data['ns'] = cleanID($m);
+                    $data['ns']['include'][] = cleanID($m);
                 }
             }
         }
@@ -79,7 +79,17 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         static $renderers = array('list', 'pagelist');
         switch($name){
             case 'count': $data[$name] = intval($value); break;
-            case 'ns': $data[$name] = cleanID($value); break;
+            case 'ns':
+                foreach(preg_split('/\s*,\s*/', $value) as $value){
+                    if($value{0} == '-'){
+                        $list = 'exclude';
+                        $value = substr($value, 1);
+                    }else{
+                        $list = 'include';
+                    }
+                    $data[$name][$list][] = cleanID($value);
+                }
+                break;
             case 'type':
                 foreach(preg_split('/\s*,\s*/', $value) as $value){
                     if(array_key_exists($value, $types)){
@@ -88,6 +98,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
                 }
                 break;
             case 'render':
+                // parse "name(flag1, flag2)" syntax
                 if(preg_match('/(\w+)(?:\((.*)\))?/', $value, $match) == 1){
                     if(in_array($match[1], $renderers)){
                         $data[$name] = $match[1];
@@ -108,13 +119,8 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         $R->info['cache'] = false;
         if($mode != 'xhtml') return false;
 
-        $changes = getRecents(0,$data['count'],$data['ns']);
+        $changes = $this->getChanges($data['count'], $data['ns'], $data['type']);
         if(!count($changes)) return true;
-
-        if(!empty($data['type'])){
-            $changes = $this->filterOnChangeType($changes, $data['type']);
-            if(!count($changes)) return true;
-        }
 
         switch($data['render']){
             case 'list': $this->renderSimpleList($changes, $R); break;
@@ -124,16 +130,71 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
     }
 
     /**
-     *
+     * Based on getRecents() from inc/changelog.php
      */
-    function filterOnChangeType($changes, $type) {
-        $result = array();
-        foreach($changes as $change){
-            if(in_array($change['type'], $type)){
-                $result[] = $change;
+    function getChanges($num, $ns, $type) {
+        global $conf;
+        $changes = array();
+        $seen = array();
+        $count = 0;
+        $lines = @file($conf['changelog']);
+
+        for($i = count($lines)-1; $i >= 0; $i--){
+            $change = $this->handleChangelogLine($lines[$i], $ns, $type, $seen);
+            if($change !== false){
+                $changes[] = $change;
+                // break when we have enough entries
+                if(++$count >= $num) break;
             }
         }
-        return $result;
+        return $changes;
+    }
+
+    /**
+     * Based on _handleRecent() from inc/changelog.php
+     */
+    function handleChangelogLine($line, $ns, $type, &$seen) {
+        // split the line into parts
+        $change = parseChangelogLine($line);
+        if($change===false) return false;
+
+        // skip seen ones
+        if(isset($seen[$change['id']])) return false;
+
+        // filter type
+        if(!empty($type) && !in_array($change['type'], $type)) return false;
+
+        // remember in seen to skip additional sights
+        $seen[$change['id']] = 1;
+
+        // check if it's a hidden page
+        if(isHiddenPage($change['id'])) return false;
+
+        // filter included namespaces
+        if(isset($ns['include'])){
+            if(!$this->isInNamespace($ns['include'], $change['id'])) return false;
+        }
+
+        // filter excluded namespaces
+        if(isset($ns['exclude'])){
+            if($this->isInNamespace($ns['exclude'], $change['id'])) return false;
+        }
+
+        // check ACL
+        $change['perms'] = auth_quickaclcheck($change['id']);
+        if ($change['perms'] < AUTH_READ) return false;
+
+        return $change;
+    }
+
+    /**
+     * Check if page belongs to one of namespaces in the list
+     */
+    function isInNamespace($namespaces, $id) {
+        foreach($namespaces as $ns){
+            if((strpos($id, $ns . ':') === 0)) return true;
+        }
+        return false;
     }
 
     /**
