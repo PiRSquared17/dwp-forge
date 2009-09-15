@@ -1,17 +1,20 @@
 <?php
+/**
+ * Changes Plugin: List the most recent changes of the wiki
+ *
+ * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ * @author     Andreas Gohr <andi@splitbrain.org>
+ */
+// must be run within Dokuwiki
+if(!defined('DOKU_INC')) die();
 
-if(!defined('DOKU_INC')) define('DOKU_INC',realpath(dirname(__FILE__).'/../../').'/');
 if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
 require_once(DOKU_PLUGIN.'syntax.php');
 
-/**
- * All DokuWiki plugins to extend the parser/rendering mechanism
- * need to inherit from this class
- */
 class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
 
     /**
-     * return some info
+     * Return some info
      */
     function getInfo(){
         return confToHash(dirname(__FILE__).'/info.txt');
