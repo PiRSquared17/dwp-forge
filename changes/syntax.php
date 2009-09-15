@@ -14,14 +14,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
      * return some info
      */
     function getInfo(){
-        return array(
-            'author' => 'Andreas Gohr',
-            'email'  => 'gohr@cosmocode.de',
-            'date'   => '2009-03-12',
-            'name'   => 'Changes Plugin',
-            'desc'   => 'List the most recent changes of the wiki',
-            'url'    => 'http://www.dokuwiki.org/plugin:changes',
-        );
+        return confToHash(dirname(__FILE__).'/info.txt');
     }
     /**
      * What kind of syntax are we?
