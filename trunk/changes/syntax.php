@@ -112,7 +112,6 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
      * Create output
      */
     function render($mode, &$R, $data) {
-        $R->info['cache'] = false;
         if($mode == 'xhtml'){
             $changes = $this->getChanges($data['count'], $data['ns'], $data['type']);
             if(!count($changes)) return true;
