@@ -77,13 +77,8 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
             case 'count': $data[$name] = intval($value); break;
             case 'ns':
                 foreach(preg_split('/\s*,\s*/', $value) as $value){
-                    if($value{0} == '-'){
-                        $list = 'exclude';
-                        $value = substr($value, 1);
-                    }else{
-                        $list = 'include';
-                    }
-                    $data[$name][$list][] = cleanID($value);
+                    $action = ($value{0} == '-')?'exclude':'include';
+                    $data[$name][$action][] = cleanID(preg_replace('/^[+-]/', '', $value));
                 }
                 break;
             case 'type':
