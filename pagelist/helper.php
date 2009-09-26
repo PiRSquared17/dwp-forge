@@ -178,7 +178,7 @@ class helper_plugin_pagelist extends DokuWiki_Plugin {
         // check if some plugins are available - if yes, load them!
         foreach ($this->plugins as $plug => $col) {
             if (!$this->column[$col]) continue;
-            if (plugin_isdisabled($plug) || (!$this->$plug = plugin_load('helper', $plug)))
+            if (plugin_isdisabled($plug) || (!$this->$plug = @plugin_load('helper', $plug)))
                 $this->column[$col] = false;
         }
 
