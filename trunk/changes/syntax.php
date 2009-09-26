@@ -199,16 +199,53 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         global $auth;
         $pagelist = @plugin_load('helper', 'pagelist');
         if($pagelist){
-            $pagelist->setFlags($flags);
+            $this->setPageListFlags($pagelist, $flags);
             $pagelist->startList();
             foreach($changes as $change){
                 $user = $auth->getUserData($change['user']);
-                $pagelist->addPage(array('id' => $change['id'], 'date' => $change['date'], 'user' => $user['name']));
+                $page['id'] = $change['id'];
+                $page['date'] = $change['date'];
+                $page['user'] = $user['name'];
+                $page['type'] = $this->getLang('change_type_'.$change['type']);
+                $page['summary'] = $change['sum'];
+                $pagelist->addPage($page);
             }
             $R->doc .= $pagelist->finishList();
         }else{
             // Fallback to the simple list renderer
             $this->renderSimpleList($changes, $R);
+        }
+    }
+
+    /**
+     *
+     */
+    function setPageListFlags($pagelist, $flags) {
+        $columns = array('type' => false, 'summary' => false);
+        $pagelistFlags = array();
+        foreach($flags as $flag){
+            if(array_key_exists($flag, $columns)){
+                $columns[$flag] = true;
+                $flag = '';
+            }elseif(substr($flag, 0, 2) == 'no'){
+                $column = substr($flag, 2);
+                if(array_key_exists($column, $columns)){
+                    $columns[$column] = false;
+                    $flag = '';
+                }
+            }
+            if(!empty($flag)){
+                $pagelistFlags[] = $flag;
+            }
+        }
+
+        $pagelist->setFlags($pagelistFlags);
+
+        if($columns['type']){
+            //$pagelist->addColumn('changes_type', 'type');
+        }
+        if($columns['summary']){
+            //$pagelist->addColumn('changes_summary', 'summary');
         }
     }
 
