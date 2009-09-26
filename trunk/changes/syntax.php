@@ -196,12 +196,14 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
      *
      */
     function renderPageList($changes, &$R, $flags) {
+        global $auth;
         $pagelist = @plugin_load('helper', 'pagelist');
         if($pagelist){
             $pagelist->setFlags($flags);
             $pagelist->startList();
             foreach($changes as $change){
-                $pagelist->addPage(array('id' => $change['id']));
+                $user = $auth->getUserData($change['user']);
+                $pagelist->addPage(array('id' => $change['id'], 'date' => $change['date'], 'user' => $user['name']));
             }
             $R->doc .= $pagelist->finishList();
         }else{
