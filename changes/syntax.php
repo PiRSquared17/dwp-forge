@@ -112,7 +112,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
             if(!count($changes)) return true;
 
             switch($data['render']){
-                case 'list': $this->renderSimpleList($changes, $R); break;
+                case 'list': $this->renderSimpleList($changes, $R, $data['render-flags']); break;
                 case 'pagelist': $this->renderPageList($changes, $R, $data['render-flags']); break;
             }
             return true;
@@ -252,17 +252,50 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
     /**
      *
      */
-    function renderSimpleList($changes, &$R) {
+    function renderSimpleList($changes, &$R, $flags) {
+        global $conf;
+        global $auth;
+        $flags = $this->parseSimpleListFlags($flags);
         $R->listu_open();
         foreach($changes as $change){
             $R->listitem_open(1);
             $R->listcontent_open();
             $R->internallink($change['id']);
-            $R->cdata(' '.$change['sum']);
+            if($flags['summary']){
+                $R->cdata(' '.$change['sum']);
+            }
+            if($flags['signature']){
+                $user = $auth->getUserData($change['user']);
+                $date = strftime($conf['dformat'], $change['date']);
+                $R->cdata(' ');
+                $R->entity('---');
+                $R->cdata(' ');
+                $R->emphasis_open();
+                $R->cdata($user['name'].' '.$date);
+                $R->emphasis_close();
+            }
             $R->listcontent_close();
             $R->listitem_close();
         }
         $R->listu_close();
+    }
+
+    /**
+     *
+     */
+    function parseSimpleListFlags($flags) {
+        $outFlags = array('summary' => true, 'signature' => false);
+        foreach($flags as $flag){
+            if(array_key_exists($flag, $outFlags)){
+                $outFlags[$flag] = true;
+            }elseif(substr($flag, 0, 2) == 'no'){
+                $flag = substr($flag, 2);
+                if(array_key_exists($flag, $outFlags)){
+                    $outFlags[$flag] = false;
+                }
+            }
+        }
+        return $outFlags;
     }
 }
 
