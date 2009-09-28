@@ -260,7 +260,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         foreach($changes as $change){
             $R->listitem_open(1);
             $R->listcontent_open();
-            $R->internallink($change['id']);
+            $R->internallink(':'.$change['id']);
             if($flags['summary']){
                 $R->cdata(' '.$change['sum']);
             }
