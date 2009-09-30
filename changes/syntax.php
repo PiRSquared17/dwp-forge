@@ -253,7 +253,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
     /**
      *
      */
-    function renderSimpleList($changes, &$R, $flags) {
+    function renderSimpleList($changes, &$R, $flags = null) {
         global $conf;
         global $auth;
         $flags = $this->parseSimpleListFlags($flags);
@@ -286,13 +286,15 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
      */
     function parseSimpleListFlags($flags) {
         $outFlags = array('summary' => true, 'signature' => false);
-        foreach($flags as $flag){
-            if(array_key_exists($flag, $outFlags)){
-                $outFlags[$flag] = true;
-            }elseif(substr($flag, 0, 2) == 'no'){
-                $flag = substr($flag, 2);
+        if(!empty($flags)){
+            foreach($flags as $flag){
                 if(array_key_exists($flag, $outFlags)){
-                    $outFlags[$flag] = false;
+                    $outFlags[$flag] = true;
+                }elseif(substr($flag, 0, 2) == 'no'){
+                    $flag = substr($flag, 2);
+                    if(array_key_exists($flag, $outFlags)){
+                        $outFlags[$flag] = false;
+                    }
                 }
             }
         }
