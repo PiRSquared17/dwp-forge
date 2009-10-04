@@ -60,7 +60,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
                 if(preg_match('/(\w+)\s*=(.+)/', $m, $temp) == 1){
                     $this->handleNamedParameter($temp[1], trim($temp[2]), $data);
                 }else{
-                    $data['ns']['include'][] = cleanID($m);
+                    $this->addNamespace($data, $m);
                 }
             }
         }
@@ -77,9 +77,8 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         switch($name){
             case 'count': $data[$name] = intval($value); break;
             case 'ns':
-                foreach(preg_split('/\s*,\s*/', $value) as $value){
-                    $action = ($value{0} == '-')?'exclude':'include';
-                    $data[$name][$action][] = cleanID(preg_replace('/^[+-]/', '', $value));
+                foreach(explode(',', $value) as $value){
+                    $this->addNamespace($data, $value);
                 }
                 break;
             case 'type':
@@ -101,6 +100,17 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
                     }
                 }
                 break;
+        }
+    }
+
+    /**
+     * Clean-up the namespace name and add it (if valid) into the $data array
+     */
+    function addNamespace(&$data, $namespace) {
+        $action = ($namespace{0} == '-')?'exclude':'include';
+        $namespace = cleanID(preg_replace('/^[+-]/', '', $namespace));
+        if (!empty($namespace)){
+            $data['ns'][$action][] = $namespace;
         }
     }
 
