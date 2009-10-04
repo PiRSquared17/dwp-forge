@@ -197,16 +197,14 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
      *
      */
     function renderPageList($changes, &$R, $flags) {
-        global $auth;
         $pagelist = @plugin_load('helper', 'pagelist');
         if($pagelist){
             $this->setPageListFlags($pagelist, $flags);
             $pagelist->startList();
             foreach($changes as $change){
-                $user = $auth->getUserData($change['user']);
                 $page['id'] = $change['id'];
                 $page['date'] = $change['date'];
-                $page['user'] = $user['name'];
+                $page['user'] = $this->getUserName($change);
                 $page['type'] = $this->getLang('change_type_'.$change['type']);
                 $page['summary'] = $change['sum'];
                 $pagelist->addPage($page);
@@ -255,7 +253,6 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
      */
     function renderSimpleList($changes, &$R, $flags = null) {
         global $conf;
-        global $auth;
         $flags = $this->parseSimpleListFlags($flags);
         $R->listu_open();
         foreach($changes as $change){
@@ -266,13 +263,13 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
                 $R->cdata(' '.$change['sum']);
             }
             if($flags['signature']){
-                $user = $auth->getUserData($change['user']);
+                $user = $this->getUserName($change);
                 $date = strftime($conf['dformat'], $change['date']);
                 $R->cdata(' ');
                 $R->entity('---');
                 $R->cdata(' ');
                 $R->emphasis_open();
-                $R->cdata($user['name'].' '.$date);
+                $R->cdata($user.' '.$date);
                 $R->emphasis_close();
             }
             $R->listcontent_close();
@@ -299,6 +296,19 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
             }
         }
         return $outFlags;
+    }
+
+    /**
+     *
+     */
+    function getUserName($change) {
+        global $auth;
+        if (!empty($change['user'])){
+            $user = $auth->getUserData($change['user']);
+            return $user['name'];
+        }else{
+            return $change['ip'];
+        }
     }
 }
 
