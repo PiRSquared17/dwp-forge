@@ -60,7 +60,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
                 if(preg_match('/(\w+)\s*=(.+)/', $m, $temp) == 1){
                     $this->handleNamedParameter($temp[1], trim($temp[2]), $data);
                 }else{
-                    $this->addNamespace($data, $m);
+                    $this->addNamespace($data, trim($m));
                 }
             }
         }
@@ -77,8 +77,8 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
         switch($name){
             case 'count': $data[$name] = intval($value); break;
             case 'ns':
-                foreach(explode(',', $value) as $value){
-                    $this->addNamespace($data, trim($value));
+                foreach(preg_split('/\s*,\s*/', $value) as $value){
+                    $this->addNamespace($data, $value);
                 }
                 break;
             case 'type':
@@ -109,7 +109,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
     function addNamespace(&$data, $namespace) {
         $action = ($namespace{0} == '-')?'exclude':'include';
         $namespace = cleanID(preg_replace('/^[+-]/', '', $namespace));
-        if (!empty($namespace)){
+        if(!empty($namespace)){
             $data['ns'][$action][] = $namespace;
         }
     }
