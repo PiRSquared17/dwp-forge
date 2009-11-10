@@ -78,7 +78,7 @@ class syntax_plugin_changes extends DokuWiki_Syntax_Plugin {
             case 'count': $data[$name] = intval($value); break;
             case 'ns':
                 foreach(explode(',', $value) as $value){
-                    $this->addNamespace($data, $value);
+                    $this->addNamespace($data, trim($value));
                 }
                 break;
             case 'type':
