@@ -22,6 +22,10 @@ class action_plugin_qna extends DokuWiki_Action_Plugin {
 
     private $rewriter;
     private $blockState;
+    private $headerIndex;
+    private $headerTitle;
+    private $headerLevel;
+    private $headerId;
 
     /**
      * Return some info
@@ -34,13 +38,14 @@ class action_plugin_qna extends DokuWiki_Action_Plugin {
      * Register callbacks
      */
     public function register($controller) {
-        $controller->register_hook('PARSER_HANDLER_DONE', 'AFTER', $this, 'onParserHandlerDone');
+        $controller->register_hook('PARSER_HANDLER_DONE', 'AFTER', $this, 'afterParserHandlerDone');
+        $controller->register_hook('PARSER_CACHE_USE', 'BEFORE', $this, 'beforeParserCacheUse');
     }
 
     /**
      *
      */
-    public function onParserHandlerDone($event, $param) {
+    public function afterParserHandlerDone($event, $param) {
         $this->reset();
         $this->fixLayout($event);
     }
@@ -51,6 +56,10 @@ class action_plugin_qna extends DokuWiki_Action_Plugin {
     private function reset() {
         $this->rewriter = new qna_instruction_rewriter();
         $this->blockState = self::STATE_CLOSED;
+        $this->headerIndex = -1;
+        $this->headerTitle = '';
+        $this->headerLevel = 0;
+        $this->headerId = array();
     }
 
     /**
@@ -59,12 +68,18 @@ class action_plugin_qna extends DokuWiki_Action_Plugin {
     private function fixLayout($event) {
         $instructions = count($event->data->calls);
         for ($i = 0; $i < $instructions; $i++) {
-            $instruction =& $event->data->calls[$i];
+            $instruction = $event->data->calls[$i];
 
             switch ($instruction[0]) {
+                case 'header':
+                    $this->headerIndex = $i;
+                    $this->headerTitle = $instruction[1][0];
+                    $this->headerLevel = $instruction[1][1];
+                    sectionID($instruction[1][0], $this->headerId);
+                    /* Fall through */
+
                 case 'section_close':
                 case 'section_edit':
-                case 'header':
                 case 'section_open':
                     if ($this->blockState != self::STATE_CLOSED) {
                         $this->rewriter->insertBlockCall($i, 'close_block', 2);
@@ -73,8 +88,14 @@ class action_plugin_qna extends DokuWiki_Action_Plugin {
                     break;
 
                 case 'plugin':
-                    if ($instruction[1][0] == 'qna_block') {
-                        $this->handlePluginQna($i, $instruction[1][1]);
+                    switch ($instruction[1][0]) {
+                        case 'qna_block':
+                            $this->handlePluginQnaBlock($i, $instruction[1][1]);
+                            break;
+
+                        case 'qna_header':
+                            $this->handlePluginQnaHeader($i);
+                            break;
                     }
                     break;
             }
@@ -90,7 +111,7 @@ class action_plugin_qna extends DokuWiki_Action_Plugin {
     /**
      * Insert implicit instructions
      */
-    private function handlePluginQna($index, $data) {
+    private function handlePluginQnaBlock($index, $data) {
         switch ($data[0]) {
             case 'open_question':
                 if ($this->blockState != self::STATE_CLOSED) {
@@ -98,6 +119,7 @@ class action_plugin_qna extends DokuWiki_Action_Plugin {
                 }
 
                 $this->rewriter->insertBlockCall($index, 'open_block');
+                $this->rewriter->setQuestionLevel($index, $this->headerLevel + 1);
                 $this->blockState = self::STATE_QUESTION;
                 break;
 
@@ -130,12 +152,62 @@ class action_plugin_qna extends DokuWiki_Action_Plugin {
                 break;
         }
     }
+
+    /**
+     * Wrap the last header
+     */
+    private function handlePluginQnaHeader($index) {
+        /* On a clean install the distance between the header instruction and qna_header dummy
+           sould be 2 (one section_open in between). Allowing distance to be in the range from
+           1 to 3 gives some flexibility for better compatibility with other plugins that might
+           rearrange instructions around the header. */
+        if (($index - $this->headerIndex) < 4) {
+            $data[0] ='open';
+            $data[1] = $this->headerTitle;
+            $data[2] = end($this->headerId);
+            $data[3] = $this->headerLevel;
+
+            $this->rewriter->insertHeaderCall($this->headerIndex, $data);
+            $this->rewriter->insertHeaderCall($this->headerIndex + 1, 'close');
+        }
+
+        $this->rewriter->delete($index);
+    }
+
+    /**
+     *
+     */
+    public function beforeParserCacheUse($event, $param) {
+        global $ID;
+
+        $cache = $event->data;
+
+        if (isset($cache->mode) && ($cache->mode == 'xhtml')) {
+            $depends = p_get_metadata($ID, 'relation depends');
+
+            if (!empty($depends) && isset($depends['rendering'])) {
+                $this->addDependencies($cache, array_keys($depends['rendering']));
+            }
+        }
+    }
+
+    /**
+     * Add extra dependencies to the cache
+     */
+    private function addDependencies($cache, $depends) {
+        foreach ($depends as $file) {
+            if (!in_array($file, $cache->depends['files']) && file_exists($file)) {
+                $cache->depends['files'][] = $file;
+            }
+        }
+    }
 }
 
 class qna_instruction_rewriter {
 
     const DELETE = 1;
     const INSERT = 2;
+    const SET_LEVEL = 3;
 
     private $correction;
 
@@ -170,6 +242,17 @@ class qna_instruction_rewriter {
     }
 
     /**
+     * Insert qna_header plugin call in front of instruction at $index
+     */
+    public function insertHeaderCall($index, $data) {
+        if (!is_array($data)) {
+            $data = array($data);
+        }
+
+        $this->insertPluginCall($index, 'qna_header', $data, DOKU_LEXER_SPECIAL);
+    }
+
+    /**
      * Append a plugin call at the end of the instruction list
      */
     public function appendPluginCall($name, $data, $state, $text = '') {
@@ -183,6 +266,13 @@ class qna_instruction_rewriter {
         for ($i = 0; $i < $repeat; $i++) {
             $this->appendPluginCall('qna_block', array($data), DOKU_LEXER_SPECIAL);
         }
+    }
+
+    /**
+     * Set open_question list level for TOC
+     */
+    public function setQuestionLevel($index, $level) {
+        $this->correction[$index][] = array(self::SET_LEVEL, $level);
     }
 
     /**
@@ -249,6 +339,12 @@ class qna_instruction_rewriter {
 
                 case self::INSERT:
                     $output[] = array($correction[1][0], $correction[1][1], $position);
+                    break;
+
+                case self::SET_LEVEL:
+                    if (($input[$index][0] == 'plugin') && ($input[$index][1][0] == 'qna_block') && ($input[$index][1][1][0] == 'open_question')) {
+                        $input[$index][1][1][3] = $correction[1];
+                    }
                     break;
             }
         }

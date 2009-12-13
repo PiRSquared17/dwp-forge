@@ -116,9 +116,12 @@ class syntax_plugin_qna_block extends DokuWiki_Syntax_Plugin {
             if ($data[0] == 'open_question') {
                 $meta['title'] = $data[1];
                 $meta['id'] = $data[2];
+                $meta['level'] = $data[3];
+                $meta['class'] = 'question';
 
                 $renderer->meta['description']['tableofquestions'][] = $meta;
             }
+
             return true;
         }
 
