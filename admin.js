@@ -228,15 +228,11 @@ var admin_refnotes = (function () {
 
         function onLoaded() {
             try {
-                var cookie = '{B27067E9-3DDA-4E31-9768-E66F23D18F4A}';
-                var pattern = new RegExp(cookie + '(.+?)' + cookie);
-                var response = ajax.response.match(pattern);
+                var settings = JSON.parse(ajax.response);
 
-                if ((response == null) || (response.length != 2)) {
+                if (settings.cookie != '{B27067E9-3DDA-4E31-9768-E66F23D18F4A}') {
                     throw 'invalid';
                 }
-
-                var settings = JSON.parse(response[1]);
 
                 setStatus('loaded', 'success', 3000);
 
